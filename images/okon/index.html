@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Hommage studio — Works</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #ffffff;
+    --surface: #ffffff;
+    --surface-2: #f2f2f0;
+    --ink: #141414;
+    --muted: #767676;
+    --accent: #2f5fd0;
+    --line: rgba(20,20,20,0.09);
+    --line-strong: rgba(20,20,20,0.16);
+    --maxw: 1180px;
+  }
+  *{ box-sizing: border-box; }
+  html{ scroll-behavior: smooth; }
+  body{
+    margin:0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, 'Hiragino Kaku Gothic ProN', 'Yu Gothic', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  a{ color: inherit; }
+  ::selection{ background: var(--accent); color: #ffffff; }
+
+  header{
+    position: sticky; top:0; left:0; right:0; z-index: 100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 18px clamp(20px, 5vw, 64px);
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--line);
+  }
+  header .logo{ font-size: 14px; font-weight: 700; }
+  header .count{ font-size: 12.5px; color: var(--muted); }
+
+  .works-head{
+    max-width: var(--maxw); margin: 0 auto;
+    padding: 28px clamp(20px, 5vw, 64px) 0;
+    display:flex; align-items: center; justify-content: space-between;
+    gap: 16px; flex-wrap: wrap;
+  }
+  .works-head h1{ font-weight: 700; font-size: 20px; margin: 0; }
+  .filter-bar{ display:flex; gap: 8px; flex-wrap: wrap; }
+  .filter-btn{
+    font-size: 12.5px; font-weight: 500;
+    background: transparent; border: 1px solid var(--line-strong);
+    color: var(--muted); padding: 6px 14px; border-radius: 999px;
+    cursor: pointer; transition: all .15s;
+  }
+  .filter-btn:hover{ color: var(--ink); border-color: var(--ink); }
+  .filter-btn.active{ background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .state-msg{
+    max-width: var(--maxw); margin: 0 auto;
+    padding: 60px clamp(20px, 5vw, 64px);
+    color: var(--muted); font-size: 14px;
+  }
+  .state-msg.error{ color: #b3261e; }
+
+  .grid{
+    max-width: var(--maxw); margin: 0 auto;
+    padding: 24px clamp(20px, 5vw, 64px) 100px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  }
+  @media (max-width: 900px){ .grid{ grid-template-columns: repeat(2, 1fr); gap: 18px; } }
+  @media (max-width: 620px){ .grid{ grid-template-columns: 1fr; } }
+
+  .card{
+    position: relative; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 10px;
+    cursor: pointer; overflow: hidden;
+    opacity: 0; transform: translateY(14px);
+    transition: opacity .5s ease, transform .5s ease, border-color .2s, box-shadow .2s;
+  }
+  .card.visible{ opacity: 1; transform: translateY(0); }
+  .card.hidden-filtered{ display:none; }
+  .card:hover{ border-color: var(--line-strong); box-shadow: 0 6px 20px rgba(20,20,20,0.06); }
+
+  .card .thumb-wrap{ position: relative; aspect-ratio: 4 / 3; overflow: hidden; background: var(--surface-2); }
+  .card img{ width: 100%; height: 100%; object-fit: cover; display:block; transition: transform .5s ease; }
+  .card:hover img{ transform: scale(1.04); }
+
+  .card .type-icon{
+    position:absolute; top:12px; right:12px; width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.92); border: 1px solid var(--line-strong);
+    display:flex; align-items:center; justify-content:center; color: var(--ink);
+  }
+  .card .type-icon svg{ width:12px; height:12px; }
+
+  .card .photo-count{
+    position:absolute; bottom:12px; right:12px; font-size: 10.5px; font-weight: 600;
+    background: rgba(255,255,255,0.92); border: 1px solid var(--line-strong); color: var(--ink);
+    padding: 3px 9px; border-radius: 999px;
+  }
+
+  .card .info{ padding: 16px 16px 18px; }
+  .card .credit-line{ font-size: 11.5px; font-weight: 600; color: var(--accent); margin-bottom: 6px; }
+  .card h3{ font-weight: 600; font-size: 16.5px; margin: 0 0 6px; line-height: 1.35; }
+  .card .desc{ font-size: 13px; color: var(--muted); line-height: 1.6; margin:0; }
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 28px clamp(20px, 5vw, 64px);
+    max-width: var(--maxw); margin: 0 auto;
+    font-size: 11.5px; color: var(--muted);
+  }
+
+  .modal-overlay{
+    position: fixed; inset:0; background: rgba(20,20,20,0.55); backdrop-filter: blur(3px);
+    z-index: 1000; display:flex; align-items:center; justify-content:center;
+    opacity: 0; pointer-events:none; transition: opacity .2s ease; padding: 24px;
+  }
+  .modal-overlay.open{ opacity:1; pointer-events:all; }
+  .modal{
+    max-width: 940px; width: 100%; max-height: 88vh; background: #ffffff;
+    border: 1px solid var(--line-strong); border-radius: 12px;
+    display:flex; flex-direction:column; transform: translateY(10px);
+    transition: transform .25s ease; overflow: hidden;
+  }
+  .modal-overlay.open .modal{ transform: translateY(0); }
+  .modal-media{
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 を固定サイズとして確保 */
+    height: 0;
+    overflow: hidden;
+    background: #0c0c0c;
+  }
+  .modal-media iframe, .modal-media img{
+    position: absolute; inset: 0;
+    width: 100%; height: 100%; object-fit: contain; border: 0; display:block;
+  }
+  .modal-media .nav-btn{
+    position:absolute; top:50%; transform: translateY(-50%);
+    z-index: 20;
+    background: rgba(0,0,0,0.65); border: 1px solid rgba(255,255,255,0.5); color: #ffffff;
+    width: 42px; height:42px; border-radius: 50%; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+    transition: background .15s;
+  }
+  .modal-media .nav-btn:hover{ background: rgba(0,0,0,0.85); }
+  .modal-media .nav-btn.prev{ left: 14px; }
+  .modal-media .nav-btn.next{ right: 14px; }
+  .modal-media .counter{
+    position:absolute; bottom: 14px; right: 14px; font-size: 11px; font-weight: 600;
+    color: #ffffff; background: rgba(0,0,0,0.65); padding: 4px 10px; border-radius: 999px;
+    z-index: 20;
+  }
+  .modal-body{ padding: 24px 28px 28px; overflow-y: auto; }
+  .modal-body .credit-line{ font-size: 12px; font-weight: 600; color: var(--accent); margin-bottom: 8px; }
+  .modal-body h3{ font-weight: 700; font-size: 22px; margin: 0 0 12px; }
+  .modal-body p{ font-size: 14px; line-height: 1.85; color: var(--muted); max-width: 60ch; margin: 0; }
+  .modal-close{
+    position: absolute; top: 14px; right: 14px; z-index: 5; width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.35); color: #ffffff;
+    cursor: pointer; display:flex; align-items:center; justify-content:center; font-size: 16px;
+  }
+  :focus-visible{ outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Hommage studio</div>
+  <div class="count" id="headerCount"></div>
+</header>
+
+<div class="works-head">
+  <h1>Works</h1>
+  <div class="filter-bar" id="filterBar"></div>
+</div>
+
+<div class="state-msg" id="stateMsg">読み込み中…</div>
+<div class="grid" id="grid"></div>
+
+<footer>© 2026 Hommage studio — Private / Not for public search</footer>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalClose" aria-label="閉じる">✕</button>
+    <div class="modal-media" id="modalMedia"></div>
+    <div class="modal-body">
+      <div class="credit-line" id="modalCredit"></div>
+      <h3 id="modalTitle"></h3>
+      <p id="modalDesc"></p>
+    </div>
+  </div>
+</div>
+
+<script>
+/* =========================================================================
+   ここにGoogleスプレッドシートの「ウェブに公開」CSVのURLを入れてください。
+   スプレッドシートに行を追加するだけで、ページは自動的に更新されます。
+   このURLは一度設定したら、基本的に変更する必要はありません。
+   ========================================================================= */
+const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/1bAlv0SKsF4zjC_YGz-y3mJDQsdShWDedCr1lrrRz5UM/gviz/tq?tqx=out:csv&gid=0";
+/* ========================================================================= */
+
+const grid = document.getElementById('grid');
+const filterBar = document.getElementById('filterBar');
+const stateMsg = document.getElementById('stateMsg');
+const headerCount = document.getElementById('headerCount');
+
+// --- CSVパーサー（ダブルクォート内のカンマ・改行に対応） ---
+function parseCSV(text){
+  const rows = [];
+  let row = [], field = '', inQuotes = false;
+  for (let i = 0; i < text.length; i++){
+    const c = text[i], next = text[i+1];
+    if (inQuotes){
+      if (c === '"' && next === '"'){ field += '"'; i++; }
+      else if (c === '"'){ inQuotes = false; }
+      else { field += c; }
+    } else {
+      if (c === '"'){ inQuotes = true; }
+      else if (c === ','){ row.push(field); field = ''; }
+      else if (c === '\n'){ row.push(field); rows.push(row); row = []; field = ''; }
+      else if (c === '\r'){ /* skip */ }
+      else { field += c; }
+    }
+  }
+  if (field.length || row.length){ row.push(field); rows.push(row); }
+  return rows.filter(r => r.some(v => v.trim() !== ''));
+}
+
+function extractYoutubeId(url){
+  if (!url) return '';
+  const m = url.match(/(?:youtu\.be\/|watch\?v=|shorts\/|embed\/)([a-zA-Z0-9_-]{6,})/);
+  return m ? m[1] : url.trim();
+}
+
+function youtubeThumb(id){ return `https://img.youtube.com/vi/${id}/hqdefault.jpg`; }
+
+function rowsToWorks(rows){
+  const header = rows[0].map(h => h.trim().toLowerCase());
+  const idx = (name) => header.indexOf(name);
+  const iTitle = idx('title'), iClient = idx('client'), iCategory = idx('category'),
+        iYear = idx('year'), iDesc = idx('desc'), iType = idx('type'), iMedia = idx('media');
+
+  return rows.slice(1).map((r, i) => {
+    const type = (r[iType] || '').trim().toLowerCase();
+    const mediaRaw = (r[iMedia] || '').trim();
+    const w = {
+      id: 'w' + i,
+      title: (r[iTitle] || '').trim(),
+      client: (r[iClient] || '').trim(),
+      category: (r[iCategory] || '').trim() || (type === 'video' ? 'Video' : 'Photo'),
+      year: (r[iYear] || '').trim(),
+      desc: (r[iDesc] || '').trim(),
+      type: type === 'photos' ? 'photos' : 'video'
+    };
+    if (w.type === 'video'){
+      w.youtubeId = extractYoutubeId(mediaRaw);
+    } else {
+      w.images = mediaRaw.split('|').map(s => s.trim()).filter(Boolean);
+    }
+    return w;
+  }).filter(w => w.title);
+}
+
+function iconSvg(type){
+  if (type === 'video'){
+    return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>`;
+  }
+  return `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 19V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2zM8.5 13.5l2.5 3 3.5-4.5 4.5 6H5l3.5-4.5z"/></svg>`;
+}
+
+function cardThumb(w){
+  if (w.type === 'video') return youtubeThumb(w.youtubeId);
+  return w.images[0] || '';
+}
+
+let works = [];
+
+function renderWorks(){
+  grid.innerHTML = '';
+  filterBar.innerHTML = '';
+
+  const categories = ['All', ...new Set(works.map(w => w.category))];
+  categories.forEach((cat, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'filter-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = cat;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.card').forEach(card => {
+        const show = cat === 'All' || card.dataset.category === cat;
+        card.classList.toggle('hidden-filtered', !show);
+      });
+    });
+    filterBar.appendChild(btn);
+  });
+
+  works.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.dataset.category = w.category;
+    const photoCountHtml = w.type === 'photos' && w.images.length > 1
+      ? `<div class="photo-count">${w.images.length} PHOTOS</div>` : '';
+    card.innerHTML = `
+      <div class="thumb-wrap">
+        <img src="${cardThumb(w)}" alt="${w.title}" loading="lazy">
+        <div class="type-icon">${iconSvg(w.type)}</div>
+        ${photoCountHtml}
+      </div>
+      <div class="info">
+        <div class="credit-line">${w.client}${w.year ? ' · ' + w.year : ''}</div>
+        <h3>${w.title}</h3>
+        <p class="desc">${w.desc}</p>
+      </div>
+    `;
+    card.addEventListener('click', () => openModal(w));
+    grid.appendChild(card);
+  });
+
+  headerCount.textContent = works.length + ' works';
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.card').forEach(c => observer.observe(c));
+}
+
+async function loadWorks(){
+  if (!SHEET_CSV_URL || SHEET_CSV_URL.includes('YOUR_')){
+    stateMsg.textContent = 'スプレッドシートのURLが設定されていません。';
+    stateMsg.classList.add('error');
+    return;
+  }
+  try {
+    const res = await fetch(SHEET_CSV_URL + (SHEET_CSV_URL.includes('?') ? '&' : '?') + 'cachebust=' + Date.now());
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    const rows = parseCSV(text);
+    works = rowsToWorks(rows);
+    stateMsg.style.display = 'none';
+    renderWorks();
+  } catch (err){
+    console.error(err);
+    stateMsg.textContent = 'データの読み込みに失敗しました。スプレッドシートが「ウェブに公開」されているか確認してください。';
+    stateMsg.classList.add('error');
+  }
+}
+loadWorks();
+
+/* ---------------- modal ---------------- */
+const overlay = document.getElementById('modalOverlay');
+const modalMedia = document.getElementById('modalMedia');
+const modalCredit = document.getElementById('modalCredit');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+let currentPhotoIndex = 0;
+let currentWork = null;
+
+function renderModalMedia(){
+  if (currentWork.type === 'video'){
+    modalMedia.innerHTML = `<iframe src="https://www.youtube.com/embed/${currentWork.youtubeId}?autoplay=1&rel=0" title="${currentWork.title}" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+    return;
+  }
+  const imgs = currentWork.images;
+  modalMedia.innerHTML = `
+    <img src="${imgs[currentPhotoIndex]}" alt="${currentWork.title}">
+    ${imgs.length > 1 ? `
+      <button class="nav-btn prev" aria-label="前の写真">‹</button>
+      <button class="nav-btn next" aria-label="次の写真">›</button>
+      <div class="counter">${currentPhotoIndex + 1} / ${imgs.length}</div>
+    ` : ''}
+  `;
+  if (imgs.length > 1){
+    modalMedia.querySelector('.prev').addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentPhotoIndex = (currentPhotoIndex - 1 + imgs.length) % imgs.length;
+      renderModalMedia();
+    });
+    modalMedia.querySelector('.next').addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentPhotoIndex = (currentPhotoIndex + 1) % imgs.length;
+      renderModalMedia();
+    });
+  }
+}
+
+function openModal(w){
+  currentWork = w;
+  currentPhotoIndex = 0;
+  modalCredit.textContent = [w.client, w.category, w.year].filter(Boolean).join(' · ');
+  modalTitle.textContent = w.title;
+  modalDesc.textContent = w.desc;
+  renderModalMedia();
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  overlay.classList.remove('open');
+  modalMedia.innerHTML = '';
+  document.body.style.overflow = '';
+}
+document.getElementById('modalClose').addEventListener('click', closeModal);
+overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+  if (overlay.classList.contains('open') && currentWork && currentWork.type === 'photos'){
+    if (e.key === 'ArrowLeft') modalMedia.querySelector('.prev')?.click();
+    if (e.key === 'ArrowRight') modalMedia.querySelector('.next')?.click();
+  }
+});
+</script>
+
+</body>
+</html>
